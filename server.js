@@ -2,6 +2,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const session = require('express-session')
 const app = express()
 const db = mongoose.connection;
 require('dotenv').config()
@@ -23,12 +24,21 @@ db.on('disconnected', () => console.log('mongo disconnected'));
 //Middleware
 app.use(express.json())
 app.use(cors())
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false
+  })
+)
 
 //Controllers
 const userController = require('./controllers/users.js');
 const messageController = require('./controllers/messages.js');
-app.use('/messages', messageController)
-app.use('/users', userController)
+const sessionsController = require('./controllers/sessions.js');
+app.use('/messages', messageController);
+app.use('/users', userController);
+app.use('/sessions', sessionsController);
 
 //Route
 app.get('/', (req, res) => {
